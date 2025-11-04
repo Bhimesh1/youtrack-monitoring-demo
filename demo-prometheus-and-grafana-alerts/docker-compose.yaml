@@ -1,17 +1,29 @@
 services:
 
 
-  cpu_generator:
-    image: curlimages/curl:latest
-    command: >
-      sh -c "while true; do
-               VALUE=$$((10 + RANDOM % 85));
-               echo \"cpu_usage $$VALUE\" |
-               curl -s --data-binary @- http://pushgateway:9091/metrics/job/demo/instance/demo-1;
-               sleep 5;
-             done"
+  # cpu_generator:
+  #   image: curlimages/curl:latest
+  #   command: >
+  #     sh -c "while true; do
+  #              VALUE=$$((10 + RANDOM % 85));
+  #              echo \"cpu_usage $$VALUE\" |
+  #              curl -s --data-binary @- http://pushgateway:9091/metrics/job/demo/instance/demo-1;
+  #              sleep 5;
+  #            done"
+  #   depends_on:
+  #     - pushgateway
+
+
+  java_cpu_generator:
+    build: ./java-metric
     depends_on:
       - pushgateway
+    environment:
+      PGW_URL: pushgateway:9091
+      JOB_NAME: java-demo
+      INSTANCE: java-1
+    restart: unless-stopped
+
 
   smtp:
     image: ixdotai/smtp:v0.7.6
